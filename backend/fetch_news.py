@@ -1,14 +1,23 @@
 import requests
 import os
 from dotenv import load_dotenv
+from cachetools import TTLCache
 
 load_dotenv()
+# Cache up to 20 results, each lasting 15 minutes (900 seconds)
+cache = TTLCache(maxsize=20, ttl=900)
 
 API_KEY = os.getenv("NEWS_API_KEY")
 BASE_URL = "https://newsapi.org/v2"
 
 
 def get_top_headlines(category="general", country="us", count=5):
+    cache_key = f"{category}_{country}_{count}"
+
+    if cache_key in cache:
+        print(f"  [CACHE HIT] {cache_key}")
+        return cache[cache_key]
+
     url = f"{BASE_URL}/top-headlines"
     params = {
         "apiKey": API_KEY,
@@ -23,6 +32,8 @@ def get_top_headlines(category="general", country="us", count=5):
         print("Error fetching news:", data.get("message"))
         return []
 
+    cache[cache_key] = data["articles"]
+    print(f"  [CACHE MISS] {cache_key} — fetched from API")
     return data["articles"]
 
 
@@ -42,14 +53,7 @@ def clean_articles(articles):
 
 # Test it out
 if __name__ == "__main__":
-    categories = ["technology", "business", "health", "science", "sports"]
-
-    for cat in categories:
-        print(f"\n{'='*50}")
-        print(f"  {cat.upper()} NEWS")
-        print(f"{'='*50}")
-        raw = get_top_headlines(category=cat, count=3)
-        articles = clean_articles(raw)
-        for article in articles:
-            print(f"\n  {article['title']}")
-            print(f"  — {article['source']}")
+    print("First call:")
+    get_top_headlines(category="technology", count=3)
+    print("Second call:")
+    get_top_headlines(category="technology", count=3)
