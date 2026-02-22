@@ -2,6 +2,10 @@
 
 A full-stack news aggregator app that pulls live headlines from multiple categories using the NewsAPI.
 
+## Live Demo
+
+🔗 [View the app](https://news-aggregator-sj3a.onrender.com)
+
 ## Features
 
 - Browse news by category (General, Technology, Business, Health, Science, Sports)
