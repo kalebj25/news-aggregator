@@ -26,10 +26,26 @@ def get_top_headlines(category="general", country="us", count=5):
     return data["articles"]
 
 
+def clean_articles(articles):
+    cleaned = []
+    for article in articles:
+        cleaned.append({
+            "title": article.get("title", "No title"),
+            "description": article.get("description", "No description"),
+            "source": article["source"]["name"],
+            "url": article.get("url"),
+            "image": article.get("urlToImage"),
+            "published": article.get("publishedAt")
+        })
+    return cleaned
+
+
 # Test it out
 if __name__ == "__main__":
-    articles = get_top_headlines()
+    raw = get_top_headlines(category="technology", count=5)
+    articles = clean_articles(raw)
     for article in articles:
         print(f"\n{article['title']}")
-        print(f"  Source: {article['source']['name']}")
-        print(f"  URL: {article['url']}")
+        print(f"  Source: {article['source']}")
+        print(f"  Published: {article['published']}")
+        print(f"  Description: {article['description'][:80]}...")
