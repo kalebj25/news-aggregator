@@ -168,3 +168,44 @@ main {
     border-radius: 10px;
     margin-bottom: 20px;
 }
+
+/* add responsive design for mobile and tablet */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.4rem;
+    }
+
+    .categories {
+        gap: 5px;
+    }
+
+    .category-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .search-bar {
+        flex-direction: column;
+        padding: 0 10px;
+    }
+
+    .search-bar input,
+    .search-bar button {
+        width: 100%;
+    }
+
+    .articles-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 15px 10px;
+    }
+
+    .article-card img,
+    .article-card .no-image {
+        height: 160px;
+    }
+}
