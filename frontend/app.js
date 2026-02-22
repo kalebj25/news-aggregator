@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:5000/api";
+const API_BASE = window.location.origin + "/api";
 
 const articlesContainer = document.getElementById("articles");
 const loadingEl = document.getElementById("loading");

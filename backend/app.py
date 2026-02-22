@@ -1,18 +1,19 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 from fetch_news import get_top_headlines, clean_articles
 
 load_dotenv()
 
-app = Flask(__name__)
+# Serve frontend files from the frontend folder
+app = Flask(__name__, static_folder="../frontend", static_url_path="")
 CORS(app)
 
 
 @app.route("/")
 def home():
-    return {"message": "News Aggregator API is running"}
+    return send_from_directory(app.static_folder, "index.html")
 
 
 @app.route("/api/news")
