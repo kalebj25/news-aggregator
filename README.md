@@ -11,8 +11,3 @@ A web-based news aggregator that pulls headlines from multiple categories using 
 ## Status
 
 🚧 Under construction — Phase 0 (Setup)
-
-```
-
-Now run the core Git loop in your terminal:
-```
