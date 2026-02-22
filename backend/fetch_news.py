@@ -18,23 +18,29 @@ def get_top_headlines(category="general", country="us", count=5):
         print(f"  [CACHE HIT] {cache_key}")
         return cache[cache_key]
 
-    url = f"{BASE_URL}/top-headlines"
-    params = {
-        "apiKey": API_KEY,
-        "category": category,
-        "country": country,
-        "pageSize": count
-    }
-    response = requests.get(url, params=params)
-    data = response.json()
+    try:
+        url = f"{BASE_URL}/top-headlines"
+        params = {
+            "apiKey": API_KEY,
+            "category": category,
+            "country": country,
+            "pageSize": count
+        }
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
 
-    if data["status"] != "ok":
-        print("Error fetching news:", data.get("message"))
+        if data["status"] != "ok":
+            print("Error fetching news:", data.get("message"))
+            return []
+
+        cache[cache_key] = data["articles"]
+        print(f"  [CACHE MISS] {cache_key} — fetched from API")
+        return data["articles"]
+
+    except requests.exceptions.RequestException as e:
+        print(f"  [ERROR] Failed to fetch news: {e}")
         return []
-
-    cache[cache_key] = data["articles"]
-    print(f"  [CACHE MISS] {cache_key} — fetched from API")
-    return data["articles"]
 
 
 def clean_articles(articles):
