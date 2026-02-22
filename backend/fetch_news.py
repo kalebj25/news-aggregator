@@ -42,10 +42,14 @@ def clean_articles(articles):
 
 # Test it out
 if __name__ == "__main__":
-    raw = get_top_headlines(category="technology", count=5)
-    articles = clean_articles(raw)
-    for article in articles:
-        print(f"\n{article['title']}")
-        print(f"  Source: {article['source']}")
-        print(f"  Published: {article['published']}")
-        print(f"  Description: {article['description'][:80]}...")
+    categories = ["technology", "business", "health", "science", "sports"]
+
+    for cat in categories:
+        print(f"\n{'='*50}")
+        print(f"  {cat.upper()} NEWS")
+        print(f"{'='*50}")
+        raw = get_top_headlines(category=cat, count=3)
+        articles = clean_articles(raw)
+        for article in articles:
+            print(f"\n  {article['title']}")
+            print(f"  — {article['source']}")
