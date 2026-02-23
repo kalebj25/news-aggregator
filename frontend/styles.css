@@ -76,6 +76,20 @@ header h1 {
     font-size: 0.95rem;
 }
 
+.exact-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.exact-toggle input {
+    cursor: pointer;
+}
+
 main {
     max-width: 1200px;
     margin: 30px auto;

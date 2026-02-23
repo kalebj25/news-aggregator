@@ -38,6 +38,12 @@ def get_news():
 def search_news():
     try:
         query = request.args.get("q", "")
+        # If user didn't use quotes and query has multiple words,
+        # wrap in quotes for exact phrase matching
+        exact = request.args.get("exact", "false")
+        if exact == "true" and '"' not in query:
+            query = f'"{query}"'
+        print(f"  [SEARCH] query={query}, exact={exact}")
         count = request.args.get("count", 10, type=int)
 
         if not query:
@@ -48,7 +54,7 @@ def search_news():
             "apiKey": os.getenv("NEWS_API_KEY"),
             "q": query,
             "pageSize": count,
-            "sortBy": "publishedAt"
+            "sortBy": "relevancy"
         }
 
         import requests as req

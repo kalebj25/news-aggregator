@@ -24,12 +24,12 @@ async function fetchNews(category) {
 }
 
 // Search news
-async function searchNews(query) {
+async function searchNews(query, exact = false) {
     showLoading();
     clearError();
 
     try {
-        const response = await fetch(`${API_BASE}/news/search?q=${encodeURIComponent(query)}&count=12`);
+        const response = await fetch(`${API_BASE}/news/search?q=${encodeURIComponent(query)}&count=20&exact=${exact}`);
         const data = await response.json();
 
         if (data.error) {
@@ -103,7 +103,8 @@ searchBtn.addEventListener("click", () => {
     const query = searchInput.value.trim();
     if (query) {
         categoryBtns.forEach(b => b.classList.remove("active"));
-        searchNews(query);
+        const exact = document.getElementById("exact-match").checked;
+        searchNews(query, exact);
     }
 });
 
