@@ -69,36 +69,35 @@ def get_all_news(sector="all", count=20):
             print(f"  [ERROR] RSS (all): {e}")
 
     else:
-        # Sector-specific fetches
-        # NewsAPI
-        if sector in NEWSAPI_SECTORS:
-            try:
-                category = SECTOR_TO_NEWSAPI.get(sector, "general")
-                raw = get_top_headlines(category=category, count=6)
-                all_articles.extend(clean_articles(raw))
-            except Exception as e:
-                print(f"  [ERROR] NewsAPI ({sector}): {e}")
+        # RSS first — most relevant for sector-specific views
+        try:
+            all_articles.extend(get_rss_articles(sector=sector, count=10))
+        except Exception as e:
+            print(f"  [ERROR] RSS ({sector}): {e}")
 
-        # NYT
+        # NYT second — good section-based coverage
         if sector in NYT_SECTORS:
             try:
-                all_articles.extend(get_nyt_articles(sector=sector, count=6))
+                all_articles.extend(get_nyt_articles(sector=sector, count=5))
             except Exception as e:
                 print(f"  [ERROR] NYT ({sector}): {e}")
 
-        # Guardian
+        # Guardian third
         if sector in GUARDIAN_SECTORS:
             try:
                 all_articles.extend(
-                    get_guardian_articles(sector=sector, count=6))
+                    get_guardian_articles(sector=sector, count=5))
             except Exception as e:
                 print(f"  [ERROR] Guardian ({sector}): {e}")
 
-        # RSS (always try — most sectors have feeds)
-        try:
-            all_articles.extend(get_rss_articles(sector=sector, count=8))
-        except Exception as e:
-            print(f"  [ERROR] RSS ({sector}): {e}")
+        # NewsAPI last — broadest categories, most noise
+        if sector in NEWSAPI_SECTORS:
+            try:
+                category = SECTOR_TO_NEWSAPI.get(sector, "general")
+                raw = get_top_headlines(category=category, count=4)
+                all_articles.extend(clean_articles(raw))
+            except Exception as e:
+                print(f"  [ERROR] NewsAPI ({sector}): {e}")
 
     # Deduplicate by title similarity
     unique = _deduplicate(all_articles)
