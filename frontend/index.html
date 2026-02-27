@@ -1,38 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Aggregator</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOREOVER...</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📰</text></svg>">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>📰 News Aggregator</h1>
-        <nav class="categories">
-            <button class="category-btn active" data-category="general">General</button>
-            <button class="category-btn" data-category="technology">Technology</button>
-            <button class="category-btn" data-category="business">Business</button>
-            <button class="category-btn" data-category="health">Health</button>
-            <button class="category-btn" data-category="science">Science</button>
-            <button class="category-btn" data-category="sports">Sports</button>
-        </nav>
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Search news...">
-            <button id="search-btn">Search</button>
-            <label class="exact-toggle">
-                <input type="checkbox" id="exact-match"> Exact
-            </label>
+
+<div class="app-shell">
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-left">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+      <div class="logo">MOREOVER<span>...</span></div>
+      <span class="env-badge">v1.0</span>
+    </div>
+    <div class="header-center">
+      <div class="search-wrapper">
+        <span class="search-icon">⌕</span>
+        <input type="text" class="search-input" id="search-input" placeholder="Search across all sectors..." />
+        <span class="search-shortcut">⌘K</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="header-btn" id="btn-live"><span class="live-dot"></span> Live</button>
+      <button class="header-btn ground-up-btn" id="btn-groundup">△ Ground Up</button>
+      <button class="header-btn" id="btn-readlater">🔖 <span id="rl-header-count">0</span></button>
+    </div>
+  </header>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="pyramid-nav">
+      <div class="pyramid-label">Moreover Hierarchy</div>
+      <div class="pyramid-viz">
+        <div class="pyramid-row" data-tier="actualization" style="width:60px; background:var(--tier-actualization);">
+          <span class="pyramid-tooltip">Self-Actualization</span>
         </div>
-    </header>
+        <div class="pyramid-row" data-tier="esteem" style="width:90px; background:var(--tier-esteem);">
+          <span class="pyramid-tooltip">Esteem</span>
+        </div>
+        <div class="pyramid-row" data-tier="belonging" style="width:120px; background:var(--tier-belonging);">
+          <span class="pyramid-tooltip">Belonging</span>
+        </div>
+        <div class="pyramid-row" data-tier="safety" style="width:150px; background:var(--tier-safety);">
+          <span class="pyramid-tooltip">Safety</span>
+        </div>
+        <div class="pyramid-row" data-tier="physiological" style="width:180px; background:var(--tier-physiological);">
+          <span class="pyramid-tooltip">Physiological</span>
+        </div>
+      </div>
+    </div>
 
-    <main>
-        <div id="loading" class="loading" style="display: none;">Loading articles...</div>
-        <div id="error" class="error" style="display: none;"></div>
-        <div id="articles" class="articles-grid"></div>
-    </main>
+    <!-- All Sectors -->
+    <div class="sidebar-section">
+      <div class="sector-item active" data-sector="all">
+        <span class="sector-icon">◉</span>
+        <span class="sector-name" style="font-weight:600;">All Sectors</span>
+        <span class="sector-badge">HOME</span>
+      </div>
+    </div>
 
-    <script src="app.js"></script>
+    <!-- Tier V: Self-Actualization -->
+    <div class="sidebar-section">
+      <div class="tier-header">
+        <div class="tier-indicator" style="background:var(--tier-actualization);"></div>
+        <span class="tier-label">Self-Actualization</span>
+        <span class="tier-roman">V</span>
+      </div>
+      <div class="sector-list">
+        <div class="sector-item" data-sector="ai" data-tier="actualization">
+          <span class="sector-icon">🧠</span>
+          <span class="sector-name">AI / Machine Learning</span>
+          <span class="count" id="count-ai">0</span>
+        </div>
+        <div class="sector-item" data-sector="technology" data-tier="actualization">
+          <span class="sector-icon">💻</span>
+          <span class="sector-name">Technology</span>
+          <span class="count" id="count-technology">0</span>
+        </div>
+        <div class="sector-item" data-sector="space" data-tier="actualization">
+          <span class="sector-icon">🚀</span>
+          <span class="sector-name">Space / Aerospace</span>
+          <span class="count" id="count-space">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier IV: Esteem -->
+    <div class="sidebar-section">
+      <div class="tier-header">
+        <div class="tier-indicator" style="background:var(--tier-esteem);"></div>
+        <span class="tier-label">Esteem</span>
+        <span class="tier-roman">IV</span>
+      </div>
+      <div class="sector-list">
+        <div class="sector-item" data-sector="sneakers" data-tier="esteem">
+          <span class="sector-icon">👟</span>
+          <span class="sector-name">Sneakers / Streetwear</span>
+          <span class="count" id="count-sneakers">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier III: Belonging -->
+    <div class="sidebar-section">
+      <div class="tier-header">
+        <div class="tier-indicator" style="background:var(--tier-belonging);"></div>
+        <span class="tier-label">Belonging</span>
+        <span class="tier-roman">III</span>
+      </div>
+      <div class="sector-list">
+        <div class="sector-item" data-sector="geopolitics" data-tier="belonging">
+          <span class="sector-icon">🌍</span>
+          <span class="sector-name">Global / Geopolitics</span>
+          <span class="count" id="count-geopolitics">0</span>
+        </div>
+        <div class="sector-item" data-sector="climate" data-tier="belonging">
+          <span class="sector-icon">🌱</span>
+          <span class="sector-name">Climate / ESG</span>
+          <span class="count" id="count-climate">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier II: Safety & Security -->
+    <div class="sidebar-section">
+      <div class="tier-header">
+        <div class="tier-indicator" style="background:var(--tier-safety);"></div>
+        <span class="tier-label">Safety &amp; Security</span>
+        <span class="tier-roman">II</span>
+      </div>
+      <div class="sector-list">
+        <div class="sector-item" data-sector="financial" data-tier="safety">
+          <span class="sector-icon">📈</span>
+          <span class="sector-name">Financial / Markets</span>
+          <span class="count" id="count-financial">0</span>
+        </div>
+        <div class="sector-item" data-sector="realestate" data-tier="safety">
+          <span class="sector-icon">🏠</span>
+          <span class="sector-name">Real Estate</span>
+          <span class="count" id="count-realestate">0</span>
+        </div>
+        <div class="sector-item" data-sector="crypto" data-tier="safety">
+          <span class="sector-icon">₿</span>
+          <span class="sector-name">Crypto / Blockchain</span>
+          <span class="count" id="count-crypto">0</span>
+        </div>
+        <div class="sector-item" data-sector="commodities" data-tier="safety">
+          <span class="sector-icon">⛏</span>
+          <span class="sector-name">Commodities</span>
+          <span class="count" id="count-commodities">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier I: Physiological -->
+    <div class="sidebar-section">
+      <div class="tier-header">
+        <div class="tier-indicator" style="background:var(--tier-physiological);"></div>
+        <span class="tier-label">Physiological</span>
+        <span class="tier-roman">I</span>
+      </div>
+      <div class="sector-list">
+        <div class="sector-item" data-sector="energy" data-tier="physiological">
+          <span class="sector-icon">⚡</span>
+          <span class="sector-name">Energy</span>
+          <span class="count" id="count-energy">0</span>
+        </div>
+        <div class="sector-item" data-sector="healthcare" data-tier="physiological">
+          <span class="sector-icon">💊</span>
+          <span class="sector-name">Healthcare / Pharma</span>
+          <span class="count" id="count-healthcare">0</span>
+        </div>
+        <div class="sector-item" data-sector="automotive" data-tier="physiological">
+          <span class="sector-icon">🚗</span>
+          <span class="sector-name">Automotive</span>
+          <span class="count" id="count-automotive">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar Bottom -->
+    <div class="sidebar-bottom">
+      <div class="sidebar-bottom-item" id="sidebar-groundup">△ From the Ground Up</div>
+      <div class="sidebar-bottom-item" id="sidebar-readlater">
+        🔖 Read Later
+        <span class="badge badge-accent" id="rl-sidebar-count">0</span>
+      </div>
+      <div class="sidebar-bottom-item" id="sidebar-settings">⚙ Settings</div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content" id="main-content">
+
+    <!-- View Bar -->
+    <div class="view-bar">
+      <div class="view-bar-left">
+        <h1 class="view-title" id="view-title">All Sectors</h1>
+        <span class="tier-tag" id="tier-tag" style="display:none;"></span>
+      </div>
+      <div class="view-tabs" id="view-tabs">
+        <button class="view-tab active" data-view="feed">Feed</button>
+        <button class="view-tab" data-view="headlines">Headlines</button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="loading-state" style="display:none;">
+      <div class="loading-pyramid">
+        <div class="loading-tier" style="width:40px;background:var(--tier-actualization);"></div>
+        <div class="loading-tier" style="width:60px;background:var(--tier-esteem);"></div>
+        <div class="loading-tier" style="width:80px;background:var(--tier-belonging);"></div>
+        <div class="loading-tier" style="width:100px;background:var(--tier-safety);"></div>
+        <div class="loading-tier" style="width:120px;background:var(--tier-physiological);"></div>
+      </div>
+      <p class="loading-text">Loading articles...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="error-state" style="display:none;"></div>
+
+    <!-- Empty State -->
+    <div id="empty" class="empty-state" style="display:none;">
+      <p>No recent articles. Moreover, check back soon...</p>
+    </div>
+
+    <!-- Feed Grid -->
+    <div id="feed-grid" class="feed-grid"></div>
+
+    <!-- Headlines List -->
+    <div id="headlines-list" class="headlines-list" style="display:none;"></div>
+
+  </main>
+</div>
+
+<!-- Mobile Overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<script src="app.js"></script>
 </body>
 </html>
