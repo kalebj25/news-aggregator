@@ -2,11 +2,10 @@ import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
-from fetch_news import get_top_headlines, clean_articles
+from aggregator import get_all_news, search_all_sources
 
 load_dotenv()
 
-# Serve frontend files from the frontend folder
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
 CORS(app)
 
@@ -19,16 +18,32 @@ def home():
 @app.route("/api/news")
 def get_news():
     try:
-        category = request.args.get("category", "general")
-        count = request.args.get("count", 10, type=int)
+        sector = request.args.get("sector", None)
+        category = request.args.get("category", None)
+        count = request.args.get("count", 20, type=int)
 
-        raw = get_top_headlines(category=category, count=count)
-        articles = clean_articles(raw)
+        # Support both sector (new) and category (legacy) params
+        if sector:
+            articles = get_all_news(sector=sector, count=count)
+        elif category:
+            # Map old category names to sectors for backward compatibility
+            category_to_sector = {
+                "general": "all",
+                "technology": "technology",
+                "business": "financial",
+                "health": "healthcare",
+                "science": "science",
+                "sports": "all",
+            }
+            mapped_sector = category_to_sector.get(category, "all")
+            articles = get_all_news(sector=mapped_sector, count=count)
+        else:
+            articles = get_all_news(sector="all", count=count)
 
         return jsonify({
-            "category": category,
+            "sector": sector or category or "all",
             "count": len(articles),
-            "articles": articles
+            "articles": articles,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -38,39 +53,21 @@ def get_news():
 def search_news():
     try:
         query = request.args.get("q", "")
-        # If user didn't use quotes and query has multiple words,
-        # wrap in quotes for exact phrase matching
+        count = request.args.get("count", 20, type=int)
         exact = request.args.get("exact", "false")
-        if exact == "true" and '"' not in query:
-            query = f'"{query}"'
-        print(f"  [SEARCH] query={query}, exact={exact}")
-        count = request.args.get("count", 10, type=int)
 
         if not query:
             return jsonify({"error": "Please provide a search query with ?q="}), 400
 
-        url = "https://newsapi.org/v2/everything"
-        params = {
-            "apiKey": os.getenv("NEWS_API_KEY"),
-            "q": query,
-            "pageSize": count,
-            "sortBy": "relevancy"
-        }
+        if exact == "true" and '"' not in query:
+            query = f'"{query}"'
 
-        import requests as req
-        response = req.get(url, params=params)
-        data = response.json()
-
-        if data["status"] != "ok":
-            return jsonify({"error": data.get("message")}), 500
-
-        from fetch_news import clean_articles
-        articles = clean_articles(data["articles"])
+        articles = search_all_sources(query=query, count=count)
 
         return jsonify({
             "query": query,
             "count": len(articles),
-            "articles": articles
+            "articles": articles,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -157,8 +157,7 @@ async function fetchSectorNews(sector) {
   hideEmpty();
 
   try {
-    const category = SECTOR_TO_CATEGORY[sector] || "general";
-    const response = await fetch(`${API_BASE}/news?category=${category}&count=12`);
+    const response = await fetch(`${API_BASE}/news?sector=${sector}&count=16`);
     const data = await response.json();
 
     if (data.error) {
