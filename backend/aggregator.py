@@ -2,6 +2,7 @@ from fetch_news import get_top_headlines, clean_articles
 from fetch_nyt import get_nyt_articles
 from fetch_guardian import get_guardian_articles
 from fetch_rss import get_rss_articles
+from relevance import filter_articles
 
 # Sectors that each source supports
 NEWSAPI_SECTORS = {
@@ -101,7 +102,8 @@ def get_all_news(sector="all", count=20):
 
     # Deduplicate by title similarity
     unique = _deduplicate(all_articles)
-    return unique[:count]
+    filtered = filter_articles(unique, sector)
+    return filtered[:count]
 
 
 def search_all_sources(query, count=20):
