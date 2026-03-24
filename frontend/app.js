@@ -1,9 +1,8 @@
-/* ========== MOREOVER... App Logic ========== */
+/* ========== MOREOVER... App Logic — Phase 4 ========== */
 
 const API_BASE = window.location.origin + "/api";
 
 // ========== SECTOR CONFIGURATION ==========
-// Maps each sector to its Maslow tier and color
 const SECTORS = {
   all:          { label: "All Sectors", tier: null, color: "var(--accent)", icon: "◉" },
   ai:           { label: "AI / Machine Learning", tier: "actualization", color: "var(--tier-actualization)", icon: "🧠" },
@@ -21,7 +20,6 @@ const SECTORS = {
   automotive:   { label: "Automotive", tier: "physiological", color: "var(--tier-physiological)", icon: "🚗" },
 };
 
-// Maslow tier metadata
 const TIERS = {
   actualization: { label: "Self-Actualization", roman: "V", color: "var(--tier-actualization)" },
   esteem:        { label: "Esteem", roman: "IV", color: "var(--tier-esteem)" },
@@ -30,26 +28,100 @@ const TIERS = {
   physiological: { label: "Physiological", roman: "I", color: "var(--tier-physiological)" },
 };
 
-// Maps MOREOVER sectors to the current backend categories
-// This bridges the gap until the backend supports sector-based routing
-const SECTOR_TO_CATEGORY = {
-  all: "general",
-  ai: "technology",
-  technology: "technology",
-  space: "science",
-  sneakers: "general",
-  geopolitics: "general",
-  climate: "science",
-  financial: "business",
-  realestate: "business",
-  crypto: "business",
-  commodities: "business",
-  energy: "science",
-  healthcare: "health",
-  automotive: "technology",
+// Tier color values for inline styles
+const TIER_COLORS = {
+  actualization: "#d44a7a",
+  esteem: "#7b6fd4",
+  belonging: "#5a9e6f",
+  safety: "#d4953a",
+  physiological: "#c45c3e",
+  unclassified: "#6a6a80",
+};
+
+// Sectors that show custom layouts
+const SECTORS_WITH_DATA_TAB = ["financial"];
+const SECTORS_WITH_CUSTOM_FEED = ["financial", "sneakers"];
+
+// View tabs per sector type
+const VIEW_TABS = {
+  financial: ["Feed", "Headlines", "Data", "AI Brief"],
+  sneakers: ["Drops", "News", "Data", "AI Brief"],
+  default: ["Feed", "Headlines", "Data", "AI Brief"],
+};
+
+// ========== HARDCODED SNEAKER DATA (until StockX API) ==========
+const SNEAKER_PRODUCTS = [
+  {
+    name: "Air Jordan 4 Retro 'Oxidized Green'",
+    sku: "FQ8138-103",
+    retail: 215,
+    ask: 342,
+    badge: "Dropping Soon",
+    badgeColor: "#7b6fd4",
+    signal: "buy",
+    signalText: "Prices trending down — good entry",
+    signalDetail: "Ask dropped 12% in 7 days. AJ4 retros avg. 47% premium after 90 days.",
+    funFact: "The original 2004 <strong>'Oxidized Green' sample</strong> sold for $12,400 at auction in 2019. Only 3 pairs are known to exist in deadstock condition. The colorway was inspired by <strong>patina on copper rooftops</strong> in Chicago — a nod to Jordan Brand's hometown.",
+    watched: true,
+  },
+  {
+    name: "New Balance 990v6 'Grey'",
+    sku: "M990GL6",
+    retail: 199,
+    ask: 224,
+    badge: "Live",
+    badgeColor: "#5a9e6f",
+    signal: "wait",
+    signalText: "Prices stabilizing — consider waiting",
+    signalDetail: "Ask flat for 14 days. NB GR releases typically dip 8-12% after 60 days.",
+    funFact: "The 990 line debuted in <strong>1982 as the first $100 sneaker</strong> — a price so audacious, New Balance's tagline was simply <strong>\"1,000 points. 990 is the closest we've come.\"</strong> The grey colorway is considered sneaker culture's version of a <strong>navy blue suit</strong>.",
+    watched: false,
+  },
+  {
+    name: "Nike Dunk Low 'Panda' 2025",
+    sku: "DD1391-100",
+    retail: 115,
+    ask: 128,
+    badge: "Hot",
+    badgeColor: "#d44a7a",
+    signal: "hold",
+    signalText: "Stable — hold if you own, skip if not",
+    signalDetail: "Premium steady at ~11%. High supply means limited upside. Better value in other Dunks.",
+    funFact: "The 'Panda' Dunk became <strong>the best-selling sneaker of 2022-2023</strong>, moving over 15M pairs. Nike intentionally used it as a <strong>\"gateway shoe\"</strong> — the affordable entry point to sneaker culture. The black/white colorway outsold every other Dunk <strong>by a factor of 4×</strong>.",
+    watched: false,
+  },
+];
+
+const SNEAKER_WATCHLIST = [
+  { name: "AJ4 'Oxidized Green'", ask: 342, premium: 59, signal: "buy" },
+  { name: "NB 990v6 'Grey'", ask: 224, premium: 13, signal: "wait" },
+  { name: "Dunk Low 'Panda'", ask: 128, premium: 11, signal: "hold" },
+  { name: "AJ1 'Chicago' Reimagined", ask: 285, premium: 43, signal: "buy" },
+];
+
+// ========== COMING SOON COPY ==========
+const COMING_SOON_DATA = {
+  financial: { icon: "📊", text: "Dividend calendars, earnings schedules, and stock screeners with full portfolio integration." },
+  sneakers: { icon: "📅", text: "Release calendar, price history charts, and StockX market data are coming." },
+  crypto: { icon: "📊", text: "Token prices, market cap rankings, and DeFi metrics are on the roadmap." },
+  energy: { icon: "📊", text: "Oil and gas prices, renewable capacity data, and grid analytics are on the roadmap." },
+  commodities: { icon: "📊", text: "Spot prices, futures data, and supply chain analytics are on the roadmap." },
+  realestate: { icon: "📊", text: "Mortgage rates, housing indices, and REIT performance tracking are on the roadmap." },
+  geopolitics: { icon: "📊", text: "Conflict trackers, sanctions timelines, and trade flow visualizations are on the roadmap." },
+  climate: { icon: "📊", text: "Carbon credit pricing, ESG scoring comparisons, and renewable capacity trackers are on the roadmap." },
+  automotive: { icon: "📊", text: "EV sales data, charging infrastructure stats, and production forecasts are on the roadmap." },
+  healthcare: { icon: "📊", text: "Clinical trial trackers, FDA approvals, and pharma pipeline data are on the roadmap." },
+  ai: { icon: "📊", text: "AI model benchmarks, funding rounds, and research paper tracking are on the roadmap." },
+  technology: { icon: "📊", text: "Startup funding, IPO pipeline, and tech earnings data are on the roadmap." },
+  space: { icon: "📊", text: "Launch schedules, satellite tracking, and space economy data are on the roadmap." },
+};
+
+const COMING_SOON_AI = {
+  default: "Claude-powered analysis is in development. <em>Moreover...</em> trend analysis, sentiment scoring, and cross-sector connections are on the way.",
 };
 
 // ========== DOM ELEMENTS ==========
+const mainContent = document.getElementById("main-content");
 const feedGrid = document.getElementById("feed-grid");
 const headlinesList = document.getElementById("headlines-list");
 const loadingEl = document.getElementById("loading");
@@ -58,8 +130,8 @@ const emptyEl = document.getElementById("empty");
 const searchInput = document.getElementById("search-input");
 const viewTitle = document.getElementById("view-title");
 const tierTag = document.getElementById("tier-tag");
+const viewTabsContainer = document.getElementById("view-tabs");
 const sectorItems = document.querySelectorAll(".sector-item");
-const viewTabs = document.querySelectorAll(".view-tab");
 const pyramidRows = document.querySelectorAll(".pyramid-row");
 const sidebar = document.getElementById("sidebar");
 const sidebarOverlay = document.getElementById("sidebar-overlay");
@@ -67,9 +139,9 @@ const mobileMenuBtn = document.getElementById("mobile-menu-btn");
 
 let currentSector = "all";
 let currentView = "feed";
+let currentArticles = [];
 
 // ========== NAVIGATION ==========
-// Sector selection
 sectorItems.forEach(item => {
   item.addEventListener("click", () => {
     const sector = item.dataset.sector;
@@ -80,10 +152,12 @@ sectorItems.forEach(item => {
 
 function setActiveSector(sector) {
   currentSector = sector;
+  currentView = "feed";
 
   // Update active state in sidebar
   sectorItems.forEach(s => s.classList.remove("active"));
-  document.querySelector(`.sector-item[data-sector="${sector}"]`).classList.add("active");
+  const activeItem = document.querySelector(`.sector-item[data-sector="${sector}"]`);
+  if (activeItem) activeItem.classList.add("active");
 
   // Update view bar
   const sectorConfig = SECTORS[sector];
@@ -92,17 +166,14 @@ function setActiveSector(sector) {
   // Show/hide tier tag
   if (sectorConfig.tier) {
     const tierConfig = TIERS[sectorConfig.tier];
-    tierTag.textContent = `Tier ${tierConfig.roman} — ${tierConfig.label}`;
-    tierTag.style.color = tierConfig.color;
-    tierTag.style.borderColor = tierConfig.color.replace(")", ", 0.3)").replace("var(", "rgba(").replace("--tier-", "");
-
-    // Use raw color values for border since CSS vars can't be modified inline easily
+    const color = TIER_COLORS[sectorConfig.tier];
     tierTag.style.cssText = `
       display: inline-block;
-      color: ${tierConfig.color};
-      border-color: ${tierConfig.color};
-      background: rgba(255,255,255,0.04);
+      color: ${color};
+      border-color: ${color}4d;
+      background: ${color}14;
     `;
+    tierTag.textContent = `Tier ${tierConfig.roman}`;
   } else {
     tierTag.style.display = "none";
   }
@@ -114,27 +185,65 @@ function setActiveSector(sector) {
     if (pyramidRow) pyramidRow.classList.add("active");
   }
 
-  // Fetch news for this sector
+  // Update view tabs
+  const tabs = VIEW_TABS[sector] || VIEW_TABS.default;
+  renderViewTabs(tabs);
+
+  // Remove ticker strip if present
+  removeTickerStrip();
+
+  // Show ticker strip for Financial
+  if (sector === "financial") {
+    fetchTickerStrip();
+  }
+
+  // Fetch content
   fetchSectorNews(sector);
 }
 
-// View tabs (Feed vs Headlines)
-viewTabs.forEach(tab => {
-  tab.addEventListener("click", () => {
-    viewTabs.forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    currentView = tab.dataset.view;
-    toggleView();
-  });
-});
+function renderViewTabs(tabs) {
+  viewTabsContainer.innerHTML = tabs.map((tab, i) => {
+    const viewKey = tab.toLowerCase().replace(" ", "");
+    const activeClass = i === 0 ? " active" : "";
+    return `<button class="view-tab${activeClass}" data-view="${viewKey}">${tab}</button>`;
+  }).join("");
 
-function toggleView() {
-  if (currentView === "feed") {
+  // Re-attach click handlers
+  viewTabsContainer.querySelectorAll(".view-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      viewTabsContainer.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentView = tab.dataset.view;
+      handleViewChange();
+    });
+  });
+}
+
+function handleViewChange() {
+  if (currentView === "feed" || currentView === "drops") {
     feedGrid.style.display = "grid";
     headlinesList.style.display = "none";
-  } else {
+    // Re-render feed for the current sector
+    if (currentSector === "sneakers" && currentView === "drops") {
+      renderSneakerFeed(currentArticles);
+    } else {
+      renderFeed(currentArticles, currentSector);
+    }
+  } else if (currentView === "headlines" || currentView === "news") {
     feedGrid.style.display = "none";
     headlinesList.style.display = "flex";
+  } else if (currentView === "data") {
+    feedGrid.style.display = "none";
+    headlinesList.style.display = "none";
+    if (currentSector === "financial") {
+      renderFinancialDataTab();
+    } else {
+      renderComingSoon("data");
+    }
+  } else if (currentView === "aibrief") {
+    feedGrid.style.display = "none";
+    headlinesList.style.display = "none";
+    renderComingSoon("ai");
   }
 }
 
@@ -142,13 +251,59 @@ function toggleView() {
 pyramidRows.forEach(row => {
   row.addEventListener("click", () => {
     const tier = row.dataset.tier;
-    // Find first sector in this tier and navigate to it
     const firstSector = Object.entries(SECTORS).find(([key, val]) => val.tier === tier);
-    if (firstSector) {
-      setActiveSector(firstSector[0]);
-    }
+    if (firstSector) setActiveSector(firstSector[0]);
   });
 });
+
+// ========== TICKER STRIP ==========
+function fetchTickerStrip() {
+  fetch(`${API_BASE}/tickers`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.tickers) renderTickerStrip(data.tickers);
+    })
+    .catch(err => console.log("Ticker fetch failed:", err));
+}
+
+function renderTickerStrip(tickers) {
+  removeTickerStrip();
+
+  const strip = document.createElement("div");
+  strip.className = "ticker-strip-sticky";
+  strip.id = "ticker-strip";
+
+  const tickerHTML = tickers.map((t, i) => {
+    const color = TIER_COLORS[t.tier] || TIER_COLORS.unclassified;
+    const isUp = t.change_percent >= 0;
+    const changeClass = isUp ? "ticker-up" : "ticker-down";
+    const changeStr = isUp ? `+${t.change_percent}%` : `${t.change_percent}%`;
+    const priceStr = t.price > 0 ? (t.symbol === "BTC" ? `$${t.price.toLocaleString()}` : `$${t.price.toFixed(2)}`) : "—";
+    const divider = i < tickers.length - 1 ? '<div class="ticker-divider"></div>' : '';
+
+    return `
+      <div class="ticker-item">
+        <span class="ticker-dot" style="background:${color};"></span>
+        <span class="ticker-symbol" style="color:${color};">${t.symbol}</span>
+        <span class="ticker-price">${priceStr}</span>
+        ${t.price > 0 ? `<span class="ticker-change ${changeClass}">${changeStr}</span>` : ''}
+      </div>
+      ${divider}
+    `;
+  }).join("");
+
+  strip.innerHTML = tickerHTML +
+    `<button class="ticker-add" title="Customize tickers — Coming soon">+</button>
+     <span class="ticker-stale fresh">Updated just now</span>`;
+
+  // Insert at the top of main content, before the inner padding area
+  mainContent.insertBefore(strip, mainContent.firstChild);
+}
+
+function removeTickerStrip() {
+  const existing = document.getElementById("ticker-strip");
+  if (existing) existing.remove();
+}
 
 // ========== DATA FETCHING ==========
 async function fetchSectorNews(sector) {
@@ -170,7 +325,13 @@ async function fetchSectorNews(sector) {
       return;
     }
 
-    renderFeed(data.articles, sector);
+    currentArticles = data.articles;
+
+    if (sector === "sneakers") {
+      renderSneakerFeed(data.articles);
+    } else {
+      renderFeed(data.articles, sector);
+    }
     renderHeadlines(data.articles, sector);
   } catch (err) {
     showError("Could not connect to the news server. Is the backend running?");
@@ -181,12 +342,10 @@ async function searchNews(query) {
   showLoading();
   clearError();
   hideEmpty();
+  removeTickerStrip();
 
-  // Update view title for search
   viewTitle.textContent = `Search: "${query}"`;
   tierTag.style.display = "none";
-
-  // Deselect sectors
   sectorItems.forEach(s => s.classList.remove("active"));
 
   try {
@@ -203,6 +362,7 @@ async function searchNews(query) {
       return;
     }
 
+    currentArticles = data.articles;
     renderFeed(data.articles, "all");
     renderHeadlines(data.articles, "all");
   } catch (err) {
@@ -210,21 +370,26 @@ async function searchNews(query) {
   }
 }
 
-// ========== RENDERING — FEED VIEW ==========
+// ========== RENDERING — STANDARD FEED ==========
 function renderFeed(articles, sector) {
   hideLoading();
+  feedGrid.style.display = "grid";
+  headlinesList.style.display = "none";
+
   const sectorConfig = SECTORS[sector] || SECTORS.all;
-  const tierColor = sectorConfig.color;
+  const tierColor = TIER_COLORS[sectorConfig.tier] || TIER_COLORS.unclassified;
+  const isFinancial = sector === "financial";
 
   feedGrid.innerHTML = articles.map((article, i) => {
-    // First article gets hero treatment, next 2 get standard, rest are standard
     let cardClass = "news-card";
     if (i === 0) cardClass += " card-hero";
-    else if (i > 0 && i <= 4) cardClass += ""; // standard span-4
     else if (i === 5) cardClass += " card-wide";
 
     const timeAgo = getTimeAgo(article.published);
     const hasImage = article.image && i <= 2;
+
+    // Financial cards get ticker reference badges
+    const tickerBadges = isFinancial ? renderTickerBadges(article.title) : "";
 
     return `
       <div class="${cardClass}" onclick="window.open('${article.url}', '_blank')">
@@ -241,7 +406,10 @@ function renderFeed(articles, sector) {
             <span class="card-time">• ${timeAgo}</span>
           </div>
           <h3 class="card-title">${escapeHtml(article.title)}</h3>
-          ${!hasImage || i !== 0 ? `<p class="card-desc">${escapeHtml(article.description || "No description available.")}</p>` : ''}
+          ${!hasImage || i !== 0 ? `<p class="card-desc">${escapeHtml(article.description || "")}</p>` : ''}
+          <div class="card-tags">
+            ${tickerBadges}
+          </div>
           <div class="card-actions">
             <button class="card-action" onclick="event.stopPropagation(); this.classList.toggle('saved');">🔖 Read Later</button>
             <button class="card-action" onclick="event.stopPropagation(); this.classList.toggle('favorited');">★ Favorite</button>
@@ -252,10 +420,308 @@ function renderFeed(articles, sector) {
   }).join("");
 }
 
+// Generate ticker reference badges for Financial cards
+function renderTickerBadges(title) {
+  const tickerMap = {
+    "fed": { symbol: "SPY", tier: "unclassified" },
+    "s&p": { symbol: "SPY", tier: "unclassified" },
+    "nasdaq": { symbol: "QQQ", tier: "unclassified" },
+    "nvidia": { symbol: "NVDA", tier: "actualization" },
+    "apple": { symbol: "AAPL", tier: "actualization" },
+    "google": { symbol: "GOOG", tier: "actualization" },
+    "microsoft": { symbol: "MSFT", tier: "actualization" },
+    "tesla": { symbol: "TSLA", tier: "physiological" },
+    "bitcoin": { symbol: "BTC", tier: "safety" },
+    "gold": { symbol: "GLD", tier: "safety" },
+    "dividend": { symbol: "DIV", tier: "safety" },
+  };
+
+  const titleLower = (title || "").toLowerCase();
+  const matched = [];
+
+  for (const [keyword, info] of Object.entries(tickerMap)) {
+    if (titleLower.includes(keyword) && !matched.find(m => m.symbol === info.symbol)) {
+      matched.push(info);
+    }
+  }
+
+  return matched.slice(0, 2).map(m => {
+    const color = TIER_COLORS[m.tier];
+    return `<span class="card-ticker-ref" style="color:${color};background:${color}14;border-color:${color}26;">${m.symbol}</span>`;
+  }).join("");
+}
+
+// ========== RENDERING — SNEAKER FEED ==========
+function renderSneakerFeed(articles) {
+  hideLoading();
+  feedGrid.style.display = "grid";
+  headlinesList.style.display = "none";
+
+  const watchlistHTML = renderWatchlistRow();
+  const productCardsHTML = SNEAKER_PRODUCTS.map(renderSneakerCard).join("");
+  const newsCardsHTML = articles.map(article => {
+    const timeAgo = getTimeAgo(article.published);
+    return `
+      <div class="news-card card-wide" onclick="window.open('${article.url}', '_blank')">
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-sector-dot" style="background:${TIER_COLORS.esteem};"></span>
+            <span class="card-source" style="color:${TIER_COLORS.esteem};">${article.source}</span>
+            <span class="card-time">• ${timeAgo}</span>
+          </div>
+          <h3 class="card-title">${escapeHtml(article.title)}</h3>
+          <p class="card-desc">${escapeHtml(article.description || "")}</p>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  feedGrid.innerHTML = watchlistHTML + productCardsHTML + newsCardsHTML;
+}
+
+function renderWatchlistRow() {
+  const cards = SNEAKER_WATCHLIST.map(s => {
+    const signalColors = {
+      buy: { bg: "rgba(74,224,122,0.15)", color: "var(--positive)" },
+      wait: { bg: "rgba(212,149,58,0.15)", color: "var(--tier-safety)" },
+      hold: { bg: "rgba(123,111,212,0.15)", color: "var(--tier-esteem)" },
+    };
+    const sc = signalColors[s.signal];
+    return `
+      <div class="watchlist-mini-card">
+        <div class="wmc-image">👟
+          <span class="wmc-signal" style="background:${sc.bg};color:${sc.color};">${s.signal.charAt(0).toUpperCase() + s.signal.slice(1)}</span>
+        </div>
+        <div class="wmc-body">
+          <div class="wmc-name">${s.name}</div>
+          <div class="wmc-price">
+            <span>$${s.ask}</span>
+            <span style="color:var(--positive);">+${s.premium}%</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="watchlist-section">
+      <div class="watchlist-header">
+        <div class="watchlist-title">👁 Your Watchlist <span class="wl-count">${SNEAKER_WATCHLIST.length}</span></div>
+      </div>
+      <div class="watchlist-scroll">${cards}</div>
+    </div>
+  `;
+}
+
+function renderSneakerCard(product) {
+  const premium = Math.round(((product.ask - product.retail) / product.retail) * 100);
+  const premiumClass = premium >= 0 ? "premium-up" : "premium-down";
+  const premiumStr = premium >= 0 ? `+${premium}%` : `${premium}%`;
+
+  const signalIcons = { buy: "↘", wait: "→", hold: "≈" };
+
+  return `
+    <div class="sneaker-card-wrapper" onclick="flipCard(this)">
+      <div class="sneaker-card-inner">
+        <div class="sneaker-front">
+          <div class="sneaker-image">
+            👟
+            <span class="sneaker-badge" style="background:${product.badgeColor};">${product.badge}</span>
+            <button class="sneaker-watchlist-btn ${product.watched ? 'active' : ''}" onclick="event.stopPropagation();this.classList.toggle('active');this.textContent=this.classList.contains('active')?'★':'☆';">
+              ${product.watched ? '★' : '☆'}
+            </button>
+            <span class="sneaker-flip-hint">Tap for intel →</span>
+          </div>
+          <div class="sneaker-info">
+            <div class="sneaker-name">${product.name}</div>
+            <div class="sneaker-sku">${product.sku}</div>
+            <div class="sneaker-prices">
+              <div class="sneaker-price-block">
+                <span class="sneaker-price-label">Retail</span>
+                <span class="sneaker-price-value price-retail">$${product.retail}</span>
+              </div>
+              <div class="sneaker-price-block">
+                <span class="sneaker-price-label">Ask</span>
+                <span class="sneaker-price-value price-resale">$${product.ask}</span>
+              </div>
+              <span class="sneaker-premium ${premiumClass}">${premiumStr}</span>
+            </div>
+          </div>
+        </div>
+        <div class="sneaker-back">
+          <div class="sneaker-back-header">
+            <span class="sneaker-back-title">${product.name}</span>
+            <button class="sneaker-back-close" onclick="event.stopPropagation();flipCard(this.closest('.sneaker-card-wrapper'));">✕</button>
+          </div>
+          <div class="sneaker-back-content">
+            <div class="sneaker-funfact">
+              <div class="sneaker-funfact-label">✦ Collector Intel</div>
+              <div class="sneaker-funfact-text">${product.funFact}</div>
+            </div>
+            <div class="sneaker-buy-signal signal-${product.signal}">
+              <div class="buy-signal-icon">${signalIcons[product.signal]}</div>
+              <div class="buy-signal-info">
+                <div class="buy-signal-label">When to Buy</div>
+                <div class="buy-signal-text">${product.signalText}</div>
+                <div class="buy-signal-detail">${product.signalDetail}</div>
+              </div>
+            </div>
+            <button class="sneaker-alert-btn">🔔 Set Price Alert — Coming Soon</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Global flip function
+window.flipCard = function(wrapper) {
+  wrapper.classList.toggle("flipped");
+};
+
+// ========== RENDERING — FINANCIAL DATA TAB ==========
+function renderFinancialDataTab() {
+  feedGrid.style.display = "none";
+  headlinesList.style.display = "none";
+
+  // Remove any existing data/coming-soon content
+  removeExtraContent();
+
+  const container = document.createElement("div");
+  container.className = "data-grid";
+  container.id = "extra-content";
+
+  container.innerHTML = `
+    <!-- Dividend Calendar Preview -->
+    <div class="data-panel" style="grid-column:span 7;">
+      <div class="data-panel-header">
+        <span class="data-panel-title">Upcoming Dividends</span>
+        <span class="data-panel-action">View Full Calendar →</span>
+      </div>
+      <div class="data-panel-body">
+        <div class="div-row">
+          <div class="div-symbol" style="color:${TIER_COLORS.actualization};">AAPL</div>
+          <div class="div-info">
+            <div class="div-name">Apple Inc.</div>
+            <div class="div-dates">Ex: Mar 7 · Pay: Mar 13</div>
+          </div>
+          <div><div class="div-yield">0.44%</div><div class="div-amount">$0.25/sh</div></div>
+        </div>
+        <div class="div-row">
+          <div class="div-symbol" style="color:${TIER_COLORS.safety};">JPM</div>
+          <div class="div-info">
+            <div class="div-name">JPMorgan Chase</div>
+            <div class="div-dates">Ex: Mar 10 · Pay: Mar 31</div>
+          </div>
+          <div><div class="div-yield">2.12%</div><div class="div-amount">$1.15/sh</div></div>
+        </div>
+        <div class="div-row">
+          <div class="div-symbol" style="color:${TIER_COLORS.physiological};">XOM</div>
+          <div class="div-info">
+            <div class="div-name">Exxon Mobil</div>
+            <div class="div-dates">Ex: Mar 12 · Pay: Apr 10</div>
+          </div>
+          <div><div class="div-yield">3.38%</div><div class="div-amount">$0.99/sh</div></div>
+        </div>
+        <div class="div-row">
+          <div class="div-symbol" style="color:${TIER_COLORS.actualization};">MSFT</div>
+          <div class="div-info">
+            <div class="div-name">Microsoft Corp.</div>
+            <div class="div-dates">Ex: Mar 14 · Pay: Apr 10</div>
+          </div>
+          <div><div class="div-yield">0.72%</div><div class="div-amount">$0.83/sh</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sector Performance -->
+    <div class="data-panel" style="grid-column:span 5;">
+      <div class="data-panel-header">
+        <span class="data-panel-title">Sector Performance</span>
+      </div>
+      <div class="data-panel-body">
+        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.actualization};"></div><div class="market-name">Technology</div><span class="market-change ticker-up">+1.82%</span></div>
+        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.physiological};"></div><div class="market-name">Energy</div><span class="market-change ticker-up">+0.94%</span></div>
+        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.physiological};"></div><div class="market-name">Healthcare</div><span class="market-change ticker-up">+0.45%</span></div>
+        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.safety};"></div><div class="market-name">Financials</div><span class="market-change ticker-down">-0.32%</span></div>
+        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.safety};"></div><div class="market-name">Real Estate</div><span class="market-change ticker-down">-0.67%</span></div>
+        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.physiological};"></div><div class="market-name">Utilities</div><span class="market-change ticker-down">-1.03%</span></div>
+      </div>
+    </div>
+
+    <!-- Earnings Schedule -->
+    <div class="data-panel" style="grid-column:span 12;">
+      <div class="data-panel-header">
+        <span class="data-panel-title">Earnings This Week</span>
+      </div>
+      <div class="data-panel-body">
+        <div class="earnings-scroll">
+          <div class="earnings-day"><div class="earnings-date">Mon · Mar 24</div><div class="earnings-ticker">CRM</div><div class="earnings-company">Salesforce · AMC</div></div>
+          <div class="earnings-day"><div class="earnings-date">Tue · Mar 25</div><div class="earnings-ticker">TGT</div><div class="earnings-company">Target · BMO</div></div>
+          <div class="earnings-day"><div class="earnings-date">Wed · Mar 26</div><div class="earnings-ticker">AVGO</div><div class="earnings-company">Broadcom · AMC</div></div>
+          <div class="earnings-day"><div class="earnings-date">Thu · Mar 27</div><div class="earnings-ticker">COST</div><div class="earnings-company">Costco · AMC</div></div>
+          <div class="earnings-day"><div class="earnings-date">Fri · Mar 28</div><div class="earnings-ticker">—</div><div class="earnings-company" style="color:var(--text-dim);">No major reports</div></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Insert after view-bar
+  const viewBar = mainContent.querySelector(".view-bar");
+  if (viewBar) {
+    viewBar.parentNode.insertBefore(container, viewBar.nextSibling.nextSibling);
+  } else {
+    mainContent.appendChild(container);
+  }
+}
+
+// ========== RENDERING — COMING SOON ==========
+function renderComingSoon(type) {
+  feedGrid.style.display = "none";
+  headlinesList.style.display = "none";
+  removeExtraContent();
+
+  const container = document.createElement("div");
+  container.id = "extra-content";
+
+  const sectorLabel = SECTORS[currentSector]?.label || currentSector;
+
+  if (type === "ai") {
+    container.innerHTML = `
+      <div class="coming-soon">
+        <div class="coming-soon-icon">✦</div>
+        <div class="coming-soon-title">AI Brief — Coming Soon</div>
+        <div class="coming-soon-text">Claude-powered analysis for ${sectorLabel} is in development. <em>Moreover...</em> trend analysis, sentiment scoring, and cross-sector connections are on the way.</div>
+      </div>
+    `;
+  } else {
+    const sectorData = COMING_SOON_DATA[currentSector] || { icon: "📊", text: "Structured data for this sector is in development." };
+    container.innerHTML = `
+      <div class="coming-soon">
+        <div class="coming-soon-icon">${sectorData.icon}</div>
+        <div class="coming-soon-title">Data — Coming Soon</div>
+        <div class="coming-soon-text">${sectorData.text} <em>Moreover...</em> it's on the way.</div>
+      </div>
+    `;
+  }
+
+  const viewBar = mainContent.querySelector(".view-bar");
+  if (viewBar) {
+    viewBar.parentNode.insertBefore(container, viewBar.nextSibling.nextSibling);
+  } else {
+    mainContent.appendChild(container);
+  }
+}
+
+function removeExtraContent() {
+  const existing = document.getElementById("extra-content");
+  if (existing) existing.remove();
+}
+
 // ========== RENDERING — HEADLINES VIEW ==========
 function renderHeadlines(articles, sector) {
   const sectorConfig = SECTORS[sector] || SECTORS.all;
-  const tierColor = sectorConfig.color;
+  const tierColor = TIER_COLORS[sectorConfig.tier] || TIER_COLORS.unclassified;
 
   headlinesList.innerHTML = articles.map(article => {
     const timeAgo = getTimeAgo(article.published);
@@ -279,11 +745,10 @@ function showLoading() {
   loadingEl.style.display = "flex";
   feedGrid.innerHTML = "";
   headlinesList.innerHTML = "";
+  removeExtraContent();
 }
 
-function hideLoading() {
-  loadingEl.style.display = "none";
-}
+function hideLoading() { loadingEl.style.display = "none"; }
 
 function showError(message) {
   hideLoading();
@@ -301,9 +766,7 @@ function showEmpty() {
   emptyEl.style.display = "block";
 }
 
-function hideEmpty() {
-  emptyEl.style.display = "none";
-}
+function hideEmpty() { emptyEl.style.display = "none"; }
 
 function escapeHtml(text) {
   if (!text) return "";
@@ -340,7 +803,6 @@ searchInput.addEventListener("keypress", (e) => {
   }
 });
 
-// ⌘K keyboard shortcut
 document.addEventListener("keydown", (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key === "k") {
     e.preventDefault();
