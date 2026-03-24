@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 from aggregator import get_all_news, search_all_sources
+from fetch_stocks import get_ticker_data, DEFAULT_TICKERS, TICKER_TIERS
 
 load_dotenv()
 
@@ -68,6 +69,24 @@ def search_news():
             "query": query,
             "count": len(articles),
             "articles": articles,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tickers")
+def get_tickers():
+    try:
+        symbols_param = request.args.get("symbols", None)
+        if symbols_param:
+            symbols = [s.strip().upper() for s in symbols_param.split(",")]
+        else:
+            symbols = DEFAULT_TICKERS
+
+        data = get_ticker_data(symbols)
+        return jsonify({
+            "tickers": data,
+            "count": len(data),
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
