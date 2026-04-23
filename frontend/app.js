@@ -212,6 +212,7 @@ function renderViewTabs(tabs) {
 
 function handleViewChange() {
   if (currentView === "feed" || currentView === "drops") {
+    removeExtraContent();
     feedGrid.style.display = "grid";
     headlinesList.style.display = "none";
     // Re-render feed for the current sector
@@ -221,16 +222,13 @@ function handleViewChange() {
       renderFeed(currentArticles, currentSector);
     }
   } else if (currentView === "headlines" || currentView === "news") {
+    removeExtraContent();
     feedGrid.style.display = "none";
     headlinesList.style.display = "flex";
   } else if (currentView === "data") {
     feedGrid.style.display = "none";
     headlinesList.style.display = "none";
-    if (currentSector === "financial") {
-      renderFinancialDataTab();
-    } else {
-      renderComingSoon("data");
-    }
+    renderComingSoon("data");
   } else if (currentView === "aibrief") {
     feedGrid.style.display = "none";
     headlinesList.style.display = "none";
@@ -486,98 +484,7 @@ window.flipCard = function(wrapper) {
 
 // ========== RENDERING — FINANCIAL DATA TAB ==========
 function renderFinancialDataTab() {
-  feedGrid.style.display = "none";
-  headlinesList.style.display = "none";
-
-  // Remove any existing data/coming-soon content
-  removeExtraContent();
-
-  const container = document.createElement("div");
-  container.className = "data-grid";
-  container.id = "extra-content";
-
-  container.innerHTML = `
-    <!-- Dividend Calendar Preview -->
-    <div class="data-panel" style="grid-column:span 7;">
-      <div class="data-panel-header">
-        <span class="data-panel-title">Upcoming Dividends</span>
-        <span class="data-panel-action">View Full Calendar →</span>
-      </div>
-      <div class="data-panel-body">
-        <div class="div-row">
-          <div class="div-symbol" style="color:${TIER_COLORS.actualization};">AAPL</div>
-          <div class="div-info">
-            <div class="div-name">Apple Inc.</div>
-            <div class="div-dates">Ex: Mar 7 · Pay: Mar 13</div>
-          </div>
-          <div><div class="div-yield">0.44%</div><div class="div-amount">$0.25/sh</div></div>
-        </div>
-        <div class="div-row">
-          <div class="div-symbol" style="color:${TIER_COLORS.safety};">JPM</div>
-          <div class="div-info">
-            <div class="div-name">JPMorgan Chase</div>
-            <div class="div-dates">Ex: Mar 10 · Pay: Mar 31</div>
-          </div>
-          <div><div class="div-yield">2.12%</div><div class="div-amount">$1.15/sh</div></div>
-        </div>
-        <div class="div-row">
-          <div class="div-symbol" style="color:${TIER_COLORS.physiological};">XOM</div>
-          <div class="div-info">
-            <div class="div-name">Exxon Mobil</div>
-            <div class="div-dates">Ex: Mar 12 · Pay: Apr 10</div>
-          </div>
-          <div><div class="div-yield">3.38%</div><div class="div-amount">$0.99/sh</div></div>
-        </div>
-        <div class="div-row">
-          <div class="div-symbol" style="color:${TIER_COLORS.actualization};">MSFT</div>
-          <div class="div-info">
-            <div class="div-name">Microsoft Corp.</div>
-            <div class="div-dates">Ex: Mar 14 · Pay: Apr 10</div>
-          </div>
-          <div><div class="div-yield">0.72%</div><div class="div-amount">$0.83/sh</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sector Performance -->
-    <div class="data-panel" style="grid-column:span 5;">
-      <div class="data-panel-header">
-        <span class="data-panel-title">Sector Performance</span>
-      </div>
-      <div class="data-panel-body">
-        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.actualization};"></div><div class="market-name">Technology</div><span class="market-change ticker-up">+1.82%</span></div>
-        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.physiological};"></div><div class="market-name">Energy</div><span class="market-change ticker-up">+0.94%</span></div>
-        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.physiological};"></div><div class="market-name">Healthcare</div><span class="market-change ticker-up">+0.45%</span></div>
-        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.safety};"></div><div class="market-name">Financials</div><span class="market-change ticker-down">-0.32%</span></div>
-        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.safety};"></div><div class="market-name">Real Estate</div><span class="market-change ticker-down">-0.67%</span></div>
-        <div class="market-row"><div class="market-sector-dot" style="background:${TIER_COLORS.physiological};"></div><div class="market-name">Utilities</div><span class="market-change ticker-down">-1.03%</span></div>
-      </div>
-    </div>
-
-    <!-- Earnings Schedule -->
-    <div class="data-panel" style="grid-column:span 12;">
-      <div class="data-panel-header">
-        <span class="data-panel-title">Earnings This Week</span>
-      </div>
-      <div class="data-panel-body">
-        <div class="earnings-scroll">
-          <div class="earnings-day"><div class="earnings-date">Mon · Mar 24</div><div class="earnings-ticker">CRM</div><div class="earnings-company">Salesforce · AMC</div></div>
-          <div class="earnings-day"><div class="earnings-date">Tue · Mar 25</div><div class="earnings-ticker">TGT</div><div class="earnings-company">Target · BMO</div></div>
-          <div class="earnings-day"><div class="earnings-date">Wed · Mar 26</div><div class="earnings-ticker">AVGO</div><div class="earnings-company">Broadcom · AMC</div></div>
-          <div class="earnings-day"><div class="earnings-date">Thu · Mar 27</div><div class="earnings-ticker">COST</div><div class="earnings-company">Costco · AMC</div></div>
-          <div class="earnings-day"><div class="earnings-date">Fri · Mar 28</div><div class="earnings-ticker">—</div><div class="earnings-company" style="color:var(--text-dim);">No major reports</div></div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  // Insert after view-bar
-  const viewBar = mainContent.querySelector(".view-bar");
-  if (viewBar) {
-    viewBar.parentNode.insertBefore(container, viewBar.nextSibling.nextSibling);
-  } else {
-    mainContent.appendChild(container);
-  }
+  renderComingSoon("data");
 }
 
 // ========== RENDERING — COMING SOON ==========
