@@ -35,7 +35,6 @@ const TIER_COLORS = {
   belonging: "#5a9e6f",
   safety: "#d4953a",
   physiological: "#c45c3e",
-  unclassified: "#6a6a80",
 };
 
 // Sectors that show custom layouts
@@ -189,14 +188,6 @@ function setActiveSector(sector) {
   const tabs = VIEW_TABS[sector] || VIEW_TABS.default;
   renderViewTabs(tabs);
 
-  // Remove ticker strip if present
-  removeTickerStrip();
-
-  // Show ticker strip for Financial
-  if (sector === "financial") {
-    fetchTickerStrip();
-  }
-
   // Fetch content
   fetchSectorNews(sector);
 }
@@ -256,54 +247,6 @@ pyramidRows.forEach(row => {
   });
 });
 
-// ========== TICKER STRIP ==========
-function fetchTickerStrip() {
-  fetch(`${API_BASE}/tickers`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.tickers) renderTickerStrip(data.tickers);
-    })
-    .catch(err => console.log("Ticker fetch failed:", err));
-}
-
-function renderTickerStrip(tickers) {
-  removeTickerStrip();
-
-  const strip = document.createElement("div");
-  strip.className = "ticker-strip-sticky";
-  strip.id = "ticker-strip";
-
-  const tickerHTML = tickers.map((t, i) => {
-    const color = TIER_COLORS[t.tier] || TIER_COLORS.unclassified;
-    const isUp = t.change_percent >= 0;
-    const changeClass = isUp ? "ticker-up" : "ticker-down";
-    const changeStr = isUp ? `+${t.change_percent}%` : `${t.change_percent}%`;
-    const priceStr = t.price > 0 ? (t.symbol === "BTC" ? `$${t.price.toLocaleString()}` : `$${t.price.toFixed(2)}`) : "—";
-    const divider = i < tickers.length - 1 ? '<div class="ticker-divider"></div>' : '';
-
-    return `
-      <div class="ticker-item">
-        <span class="ticker-dot" style="background:${color};"></span>
-        <span class="ticker-symbol" style="color:${color};">${t.symbol}</span>
-        <span class="ticker-price">${priceStr}</span>
-        ${t.price > 0 ? `<span class="ticker-change ${changeClass}">${changeStr}</span>` : ''}
-      </div>
-      ${divider}
-    `;
-  }).join("");
-
-  strip.innerHTML = tickerHTML +
-    `<button class="ticker-add" title="Customize tickers — Coming soon">+</button>
-     <span class="ticker-stale fresh">Updated just now</span>`;
-
-  // Insert at the top of main content, before the inner padding area
-  mainContent.insertBefore(strip, mainContent.firstChild);
-}
-
-function removeTickerStrip() {
-  const existing = document.getElementById("ticker-strip");
-  if (existing) existing.remove();
-}
 
 // ========== DATA FETCHING ==========
 async function fetchSectorNews(sector) {
@@ -342,7 +285,6 @@ async function searchNews(query) {
   showLoading();
   clearError();
   hideEmpty();
-  removeTickerStrip();
 
   viewTitle.textContent = `Search: "${query}"`;
   tierTag.style.display = "none";
@@ -378,7 +320,6 @@ function renderFeed(articles, sector) {
 
   const sectorConfig = SECTORS[sector] || SECTORS.all;
   const tierColor = TIER_COLORS[sectorConfig.tier] || TIER_COLORS.unclassified;
-  const isFinancial = sector === "financial";
 
   feedGrid.innerHTML = articles.map((article, i) => {
     let cardClass = "news-card";
@@ -387,9 +328,6 @@ function renderFeed(articles, sector) {
 
     const timeAgo = getTimeAgo(article.published);
     const hasImage = article.image && i <= 2;
-
-    // Financial cards get ticker reference badges
-    const tickerBadges = isFinancial ? renderTickerBadges(article.title) : "";
 
     return `
       <div class="${cardClass}" onclick="window.open('${article.url}', '_blank')">
@@ -407,9 +345,7 @@ function renderFeed(articles, sector) {
           </div>
           <h3 class="card-title">${escapeHtml(article.title)}</h3>
           ${!hasImage || i !== 0 ? `<p class="card-desc">${escapeHtml(article.description || "")}</p>` : ''}
-          <div class="card-tags">
-            ${tickerBadges}
-          </div>
+          <div class="card-tags"></div>
           <div class="card-actions">
             <button class="card-action" onclick="event.stopPropagation(); this.classList.toggle('saved');">🔖 Read Later</button>
             <button class="card-action" onclick="event.stopPropagation(); this.classList.toggle('favorited');">★ Favorite</button>
@@ -417,37 +353,6 @@ function renderFeed(articles, sector) {
         </div>
       </div>
     `;
-  }).join("");
-}
-
-// Generate ticker reference badges for Financial cards
-function renderTickerBadges(title) {
-  const tickerMap = {
-    "fed": { symbol: "SPY", tier: "unclassified" },
-    "s&p": { symbol: "SPY", tier: "unclassified" },
-    "nasdaq": { symbol: "QQQ", tier: "unclassified" },
-    "nvidia": { symbol: "NVDA", tier: "actualization" },
-    "apple": { symbol: "AAPL", tier: "actualization" },
-    "google": { symbol: "GOOG", tier: "actualization" },
-    "microsoft": { symbol: "MSFT", tier: "actualization" },
-    "tesla": { symbol: "TSLA", tier: "physiological" },
-    "bitcoin": { symbol: "BTC", tier: "safety" },
-    "gold": { symbol: "GLD", tier: "safety" },
-    "dividend": { symbol: "DIV", tier: "safety" },
-  };
-
-  const titleLower = (title || "").toLowerCase();
-  const matched = [];
-
-  for (const [keyword, info] of Object.entries(tickerMap)) {
-    if (titleLower.includes(keyword) && !matched.find(m => m.symbol === info.symbol)) {
-      matched.push(info);
-    }
-  }
-
-  return matched.slice(0, 2).map(m => {
-    const color = TIER_COLORS[m.tier];
-    return `<span class="card-ticker-ref" style="color:${color};background:${color}14;border-color:${color}26;">${m.symbol}</span>`;
   }).join("");
 }
 
