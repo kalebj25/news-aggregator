@@ -43,60 +43,8 @@ const SECTORS_WITH_CUSTOM_FEED = ["financial", "sneakers"];
 
 // View tabs per sector type
 const VIEW_TABS = {
-  financial: ["Feed", "Headlines", "Data", "AI Brief"],
-  sneakers: ["Drops", "News", "Data", "AI Brief"],
   default: ["Feed", "Headlines", "Data", "AI Brief"],
 };
-
-// ========== HARDCODED SNEAKER DATA (until StockX API) ==========
-const SNEAKER_PRODUCTS = [
-  {
-    name: "Air Jordan 4 Retro 'Oxidized Green'",
-    sku: "FQ8138-103",
-    retail: 215,
-    ask: 342,
-    badge: "Dropping Soon",
-    badgeColor: "#7b6fd4",
-    signal: "buy",
-    signalText: "Prices trending down — good entry",
-    signalDetail: "Ask dropped 12% in 7 days. AJ4 retros avg. 47% premium after 90 days.",
-    funFact: "The original 2004 <strong>'Oxidized Green' sample</strong> sold for $12,400 at auction in 2019. Only 3 pairs are known to exist in deadstock condition. The colorway was inspired by <strong>patina on copper rooftops</strong> in Chicago — a nod to Jordan Brand's hometown.",
-    watched: true,
-  },
-  {
-    name: "New Balance 990v6 'Grey'",
-    sku: "M990GL6",
-    retail: 199,
-    ask: 224,
-    badge: "Live",
-    badgeColor: "#5a9e6f",
-    signal: "wait",
-    signalText: "Prices stabilizing — consider waiting",
-    signalDetail: "Ask flat for 14 days. NB GR releases typically dip 8-12% after 60 days.",
-    funFact: "The 990 line debuted in <strong>1982 as the first $100 sneaker</strong> — a price so audacious, New Balance's tagline was simply <strong>\"1,000 points. 990 is the closest we've come.\"</strong> The grey colorway is considered sneaker culture's version of a <strong>navy blue suit</strong>.",
-    watched: false,
-  },
-  {
-    name: "Nike Dunk Low 'Panda' 2025",
-    sku: "DD1391-100",
-    retail: 115,
-    ask: 128,
-    badge: "Hot",
-    badgeColor: "#d44a7a",
-    signal: "hold",
-    signalText: "Stable — hold if you own, skip if not",
-    signalDetail: "Premium steady at ~11%. High supply means limited upside. Better value in other Dunks.",
-    funFact: "The 'Panda' Dunk became <strong>the best-selling sneaker of 2022-2023</strong>, moving over 15M pairs. Nike intentionally used it as a <strong>\"gateway shoe\"</strong> — the affordable entry point to sneaker culture. The black/white colorway outsold every other Dunk <strong>by a factor of 4×</strong>.",
-    watched: false,
-  },
-];
-
-const SNEAKER_WATCHLIST = [
-  { name: "AJ4 'Oxidized Green'", ask: 342, premium: 59, signal: "buy" },
-  { name: "NB 990v6 'Grey'", ask: 224, premium: 13, signal: "wait" },
-  { name: "Dunk Low 'Panda'", ask: 128, premium: 11, signal: "hold" },
-  { name: "AJ1 'Chicago' Reimagined", ask: 285, premium: 43, signal: "buy" },
-];
 
 // ========== COMING SOON COPY ==========
 const COMING_SOON_DATA = {
@@ -216,11 +164,7 @@ function handleViewChange() {
     feedGrid.style.display = "grid";
     headlinesList.style.display = "none";
     // Re-render feed for the current sector
-    if (currentSector === "sneakers" && currentView === "drops") {
-      renderSneakerFeed(currentArticles);
-    } else {
-      renderFeed(currentArticles, currentSector);
-    }
+    renderSneakerFeed(currentArticles);
   } else if (currentView === "headlines" || currentView === "news") {
     removeExtraContent();
     feedGrid.style.display = "none";
@@ -268,11 +212,7 @@ async function fetchSectorNews(sector) {
 
     currentArticles = data.articles;
 
-    if (sector === "sneakers") {
-      renderSneakerFeed(data.articles);
-    } else {
-      renderFeed(data.articles, sector);
-    }
+    renderFeed(data.articles, sector);
     renderHeadlines(data.articles, sector);
   } catch (err) {
     showError("Could not connect to the news server. Is the backend running?");
@@ -359,128 +299,8 @@ function renderSneakerFeed(articles) {
   hideLoading();
   feedGrid.style.display = "grid";
   headlinesList.style.display = "none";
-
-  const watchlistHTML = renderWatchlistRow();
-  const productCardsHTML = SNEAKER_PRODUCTS.map(renderSneakerCard).join("");
-  const newsCardsHTML = articles.map(article => {
-    const timeAgo = getTimeAgo(article.published);
-    return `
-      <div class="news-card card-wide" onclick="window.open('${article.url}', '_blank')">
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="card-sector-dot" style="background:${TIER_COLORS.esteem};"></span>
-            <span class="card-source" style="color:${TIER_COLORS.esteem};">${article.source}</span>
-            <span class="card-time">• ${timeAgo}</span>
-          </div>
-          <h3 class="card-title">${escapeHtml(article.title)}</h3>
-          <p class="card-desc">${escapeHtml(article.description || "")}</p>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  feedGrid.innerHTML = watchlistHTML + productCardsHTML + newsCardsHTML;
+  renderFeed(articles, "sneakers");
 }
-
-function renderWatchlistRow() {
-  const cards = SNEAKER_WATCHLIST.map(s => {
-    const signalColors = {
-      buy: { bg: "rgba(74,224,122,0.15)", color: "var(--positive)" },
-      wait: { bg: "rgba(212,149,58,0.15)", color: "var(--tier-safety)" },
-      hold: { bg: "rgba(123,111,212,0.15)", color: "var(--tier-esteem)" },
-    };
-    const sc = signalColors[s.signal];
-    return `
-      <div class="watchlist-mini-card">
-        <div class="wmc-image">👟
-          <span class="wmc-signal" style="background:${sc.bg};color:${sc.color};">${s.signal.charAt(0).toUpperCase() + s.signal.slice(1)}</span>
-        </div>
-        <div class="wmc-body">
-          <div class="wmc-name">${s.name}</div>
-          <div class="wmc-price">
-            <span>$${s.ask}</span>
-            <span style="color:var(--positive);">+${s.premium}%</span>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  return `
-    <div class="watchlist-section">
-      <div class="watchlist-header">
-        <div class="watchlist-title">👁 Your Watchlist <span class="wl-count">${SNEAKER_WATCHLIST.length}</span></div>
-      </div>
-      <div class="watchlist-scroll">${cards}</div>
-    </div>
-  `;
-}
-
-function renderSneakerCard(product) {
-  const premium = Math.round(((product.ask - product.retail) / product.retail) * 100);
-  const premiumClass = premium >= 0 ? "premium-up" : "premium-down";
-  const premiumStr = premium >= 0 ? `+${premium}%` : `${premium}%`;
-
-  const signalIcons = { buy: "↘", wait: "→", hold: "≈" };
-
-  return `
-    <div class="sneaker-card-wrapper" onclick="flipCard(this)">
-      <div class="sneaker-card-inner">
-        <div class="sneaker-front">
-          <div class="sneaker-image">
-            👟
-            <span class="sneaker-badge" style="background:${product.badgeColor};">${product.badge}</span>
-            <button class="sneaker-watchlist-btn ${product.watched ? 'active' : ''}" onclick="event.stopPropagation();this.classList.toggle('active');this.textContent=this.classList.contains('active')?'★':'☆';">
-              ${product.watched ? '★' : '☆'}
-            </button>
-            <span class="sneaker-flip-hint">Tap for intel →</span>
-          </div>
-          <div class="sneaker-info">
-            <div class="sneaker-name">${product.name}</div>
-            <div class="sneaker-sku">${product.sku}</div>
-            <div class="sneaker-prices">
-              <div class="sneaker-price-block">
-                <span class="sneaker-price-label">Retail</span>
-                <span class="sneaker-price-value price-retail">$${product.retail}</span>
-              </div>
-              <div class="sneaker-price-block">
-                <span class="sneaker-price-label">Ask</span>
-                <span class="sneaker-price-value price-resale">$${product.ask}</span>
-              </div>
-              <span class="sneaker-premium ${premiumClass}">${premiumStr}</span>
-            </div>
-          </div>
-        </div>
-        <div class="sneaker-back">
-          <div class="sneaker-back-header">
-            <span class="sneaker-back-title">${product.name}</span>
-            <button class="sneaker-back-close" onclick="event.stopPropagation();flipCard(this.closest('.sneaker-card-wrapper'));">✕</button>
-          </div>
-          <div class="sneaker-back-content">
-            <div class="sneaker-funfact">
-              <div class="sneaker-funfact-label">✦ Collector Intel</div>
-              <div class="sneaker-funfact-text">${product.funFact}</div>
-            </div>
-            <div class="sneaker-buy-signal signal-${product.signal}">
-              <div class="buy-signal-icon">${signalIcons[product.signal]}</div>
-              <div class="buy-signal-info">
-                <div class="buy-signal-label">When to Buy</div>
-                <div class="buy-signal-text">${product.signalText}</div>
-                <div class="buy-signal-detail">${product.signalDetail}</div>
-              </div>
-            </div>
-            <button class="sneaker-alert-btn">🔔 Set Price Alert — Coming Soon</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// Global flip function
-window.flipCard = function(wrapper) {
-  wrapper.classList.toggle("flipped");
-};
 
 // ========== RENDERING — FINANCIAL DATA TAB ==========
 function renderFinancialDataTab() {
