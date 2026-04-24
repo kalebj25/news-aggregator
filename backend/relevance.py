@@ -274,6 +274,13 @@ SOURCE_TRUST = {
 
     # Commodities sources
     "Kitco": {"commodities": 1.0},
+    "Mining.com": {"commodities": 1.0, "energy": 0.6},
+    "OilPrice": {"commodities": 0.9, "energy": 1.0},
+    "Investing.com Commodities": {"commodities": 0.9, "financial": 0.5},
+
+    # AI sources
+    "MIT News AI": {"ai": 1.0, "technology": 0.7},
+    "Hugging Face": {"ai": 1.0, "technology": 0.7},
 
     # General sources — moderate trust across multiple sectors
     "New York Times": {

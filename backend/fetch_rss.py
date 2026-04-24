@@ -18,7 +18,8 @@ RSS_FEEDS = {
         {"name": "Wired", "url": "https://www.wired.com/feed/rss"},
     ],
     "ai": [
-        {"name": "TLDR AI", "url": "https://tldr.tech/ai/rss"},
+        {"name": "MIT News AI", "url": "https://news.mit.edu/rss/topic/artificial-intelligence2"},
+        {"name": "Hugging Face", "url": "https://huggingface.co/blog/feed.xml"},
         {"name": "MIT Tech Review", "url": "https://www.technologyreview.com/feed/"},
         {"name": "VentureBeat AI", "url": "https://venturebeat.com/category/ai/feed/"},
     ],
@@ -59,7 +60,9 @@ RSS_FEEDS = {
         {"name": "NASA", "url": "https://www.nasa.gov/rss/dyn/breaking_news.rss"},
     ],
     "commodities": [
-        {"name": "Kitco", "url": "https://www.kitco.com/feed/rss/news/"},
+        {"name": "Mining.com", "url": "https://www.mining.com/feed/"},
+        {"name": "OilPrice", "url": "https://oilprice.com/rss/main"},
+        {"name": "Investing.com Commodities", "url": "https://www.investing.com/rss/commodities.rss"},
     ],
     "realestate": [
         {"name": "HousingWire", "url": "https://www.housingwire.com/feed/"},
