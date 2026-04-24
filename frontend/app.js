@@ -37,10 +37,6 @@ const TIER_COLORS = {
   physiological: "#c45c3e",
 };
 
-// Sectors that show custom layouts
-const SECTORS_WITH_DATA_TAB = ["financial"];
-const SECTORS_WITH_CUSTOM_FEED = ["financial", "sneakers"];
-
 // View tabs per sector type
 const VIEW_TABS = {
   default: ["Feed", "Headlines", "Data", "AI Brief"],
@@ -49,7 +45,7 @@ const VIEW_TABS = {
 // ========== COMING SOON COPY ==========
 const COMING_SOON_DATA = {
   financial: { icon: "📊", text: "Dividend calendars, earnings schedules, and stock screeners with full portfolio integration." },
-  sneakers: { icon: "📅", text: "Release calendar, price history charts, and StockX market data are coming." },
+  sneakers: { icon: "📊", text: "Sneaker market data and release calendar are on the roadmap." },  
   crypto: { icon: "📊", text: "Token prices, market cap rankings, and DeFi metrics are on the roadmap." },
   energy: { icon: "📊", text: "Oil and gas prices, renewable capacity data, and grid analytics are on the roadmap." },
   commodities: { icon: "📊", text: "Spot prices, futures data, and supply chain analytics are on the roadmap." },
@@ -292,14 +288,6 @@ function renderFeed(articles, sector) {
       </div>
     `;
   }).join("");
-}
-
-// ========== RENDERING — SNEAKER FEED ==========
-function renderSneakerFeed(articles) {
-  hideLoading();
-  feedGrid.style.display = "grid";
-  headlinesList.style.display = "none";
-  renderFeed(articles, "sneakers");
 }
 
 // ========== RENDERING — FINANCIAL DATA TAB ==========
